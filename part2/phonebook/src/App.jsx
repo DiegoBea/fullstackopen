@@ -75,7 +75,7 @@ const App = () => {
     if (persons.some((item) => item.name == newName)) {
       let person = copy.find((person) => person.name == newName);
       person.number = newPhone;
-      phoneService.update(person).then(response => {
+      phoneService.update(person).then((response) => {
         setPersons(copy);
         setNewName("");
         setNewPhone("");

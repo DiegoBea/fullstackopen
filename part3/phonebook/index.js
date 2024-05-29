@@ -2,9 +2,11 @@ const express = require("express");
 const uuid = require("uuid");
 const morgan = require("morgan");
 const app = express();
+const cors = require("cors");
 
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(cors())
 app.use(
   morgan(function (tokens, req, res) {
     return [

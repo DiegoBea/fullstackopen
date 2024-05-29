@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseUrl = "http://localhost:3001/persons";
+const baseUrl = "https://phonebook-koo7.onrender.com/api/persons";
 
 const getAll = async () => {
   const request = axios.get(baseUrl);
@@ -26,4 +26,4 @@ const update = (contact) => {
   return request.then((response) => response.data).catch("Update failed");
 };
 
-export default { getAll, insert, update,  remove };
+export default { getAll, insert, update, remove };

@@ -1,8 +1,10 @@
+require('dotenv').config()
 const express = require("express");
 const uuid = require("uuid");
 const morgan = require("morgan");
 const app = express();
 const cors = require("cors");
+const Person = require("./models/person")
 
 app.use(express.json());
 app.use(morgan("dev"));
@@ -53,19 +55,15 @@ function generateID(req, res, next) {
 }
 
 app.get("/api/persons", (request, response) => {
-  response.json(persons);
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 });
 
 app.get("/api/persons/:id", (request, response) => {
-  let id = Number(request.params.id);
-  let person = persons.find((person) => person.id === id);
-
-  if (!person) {
-    return response.status(404).json({
-      error: "Person not found",
-    });
-  }
-  response.status(200).json(person);
+  Person.findById(request.params.id).then(person =>
+    response.json(person)
+  )
 });
 
 app.delete("/api/persons/:id", (request, response) => {
@@ -84,18 +82,18 @@ app.delete("/api/persons/:id", (request, response) => {
 
 app.post("/api/persons", (request, response) => {
   const body = request.body;
-  if (body.name === undefined || body.phone === undefined) {
+  if (body.name === undefined || body.number === undefined) {
     response.status(500).json({ error: "Incomplete parameters" });
   }
 
-  if (persons.some((persons) => persons.name === body.name)) {
-    response.status(500).json({ error: "Name must be unique" });
-  }
+  const person = new Person({
+    name: body.name,
+    number: body.number
+  });
 
-  body.id = generateID();
-
-  persons = persons.concat(body);
-  response.status(200).json(body);
+  person.save().then(savedPerson => {
+    response.json(savedPerson)
+  })
   morgan.token("dev", function (req, res) {
     return req.headers["content-type"];
   });

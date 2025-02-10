@@ -1,5 +1,6 @@
 import axios from "axios";
 const baseUrl = "https://phonebook-koo7.onrender.com/api/persons";
+// const baseUrl = "http://localhost:3001/api/persons";
 
 const getAll = async () => {
   const request = axios.get(baseUrl);
@@ -11,7 +12,11 @@ const getAll = async () => {
 const insert = async (contact) => {
   const request = axios.post(baseUrl, contact);
 
-  return request.then((response) => response.data).catch("Insert failed");
+  return request.then((response) => response.data).catch((error) => {
+    console.log(error);
+
+    return alert(error.response.data.error);
+  });
 };
 
 const remove = (contact) => {
@@ -23,7 +28,7 @@ const remove = (contact) => {
 const update = (contact) => {
   const request = axios.put(`${baseUrl}/${contact.id}`, contact);
 
-  return request.then((response) => response.data).catch("Update failed");
+  return request.then((response) => response.data).catch((error) => alert(error.response.data.error));
 };
 
 export default { getAll, insert, update, remove };

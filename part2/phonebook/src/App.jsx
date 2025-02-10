@@ -74,29 +74,44 @@ const App = () => {
     let copy = [...persons];
     if (persons.some((item) => item.name == newName)) {
       let person = copy.find((person) => person.name == newName);
-      person.phone = newPhone;
-      phoneService.update(person).then((response) => {
-        setPersons(copy);
-        setNewName("");
-        setNewPhone("");
-      });
+      person.number = newPhone;
+      phoneService
+        .update(person)
+        .then((response) => {
+          setPersons(copy);
+          setNewName("");
+          setNewPhone("");
+        })
+        .catch((error) => {
+          console.error("Error updating person: ", error);
+        });
       return;
     }
 
-    let person = { name: newName, phone: newPhone };
-    phoneService.insert(person).then((response) => {
-      copy.push(response);
-      setPersons(copy);
-      setNewName("");
-      setNewPhone("");
-    });
+    let person = { name: newName, number: newPhone };
+    phoneService
+      .insert(person)
+      .then((response) => {
+        copy.push(response);
+        setPersons(copy);
+        setNewName("");
+        setNewPhone("");
+      })
+      .catch((error) => {
+        console.error("Error adding person: ", error);
+      });
   };
 
   const handleRemovePhone = (contact) => {
     console.log(contact);
-    phoneService.remove(contact).then((response) => {
-      setPersons(persons.filter((person) => person.id !== contact.id));
-    });
+    phoneService
+      .remove(contact)
+      .then((response) => {
+        setPersons(persons.filter((person) => person.id !== contact.id));
+      })
+      .catch((error) => {
+        console.error("Error deleting person:", error);
+      });
   };
 
   return (

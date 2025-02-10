@@ -90,7 +90,7 @@ app.post("/api/persons", (request, response, next) => {
 
       person.save().then(savedPerson => {
         response.json(savedPerson)
-      })
+      }).catch((error) => next(error))
 
       morgan.token("dev", function (req, res) {
         return req.headers["content-type"];
@@ -157,7 +157,10 @@ const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
   if (error.name === 'CastError') return response.status(400).send({ error: 'malformatted id' })
-  if (error.name === 'ValidationError') return response.status(400).send({ error: error.message })
+  if (error.name === 'ValidationError') return response.status(400).json({ error: error.message })
+
 
   next(error)
 }
+// este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
+app.use(errorHandler)

@@ -1,14 +1,14 @@
 require('dotenv').config()
-const express = require("express");
-const uuid = require("uuid");
-const morgan = require("morgan");
-const app = express();
-const cors = require("cors");
-const Person = require("./models/person")
+const express = require('express')
+const uuid = require('uuid')
+const morgan = require('morgan')
+const app = express()
+const cors = require('cors')
+const Person = require('./models/person')
 
-app.use(express.json());
-app.use(morgan("dev"));
-app.use(cors());
+app.use(express.json())
+app.use(morgan('dev'))
+app.use(cors())
 app.use(express.static('dist'))
 app.use(
   morgan(function (tokens, req, res) {
@@ -22,61 +22,61 @@ app.use(
     ].join(' ')
   }, {
     skip: function (req, res) {
-      return req.method != "POST";
+      return req.method !== 'POST'
     },
   })
-);
+)
 
 let persons = [
   {
     id: 1,
-    name: "Arto Hellas",
-    number: "040-123456",
+    name: 'Arto Hellas',
+    number: '040-123456',
   },
   {
     id: 2,
-    name: "Ada Lovelace",
-    number: "39-44-5323523",
+    name: 'Ada Lovelace',
+    number: '39-44-5323523',
   },
   {
     id: 3,
-    name: "Dan Abramov",
-    number: "12-43-234345",
+    name: 'Dan Abramov',
+    number: '12-43-234345',
   },
   {
     id: 4,
-    name: "Mary Poppendieck",
-    number: "39-23-6423122",
+    name: 'Mary Poppendieck',
+    number: '39-23-6423122',
   },
-];
+]
 
 function generateID(req, res, next) {
-  return uuid.v4();
+  return uuid.v4()
 }
 
-app.get("/api/persons", (request, response) => {
+app.get('/api/persons', (request, response) => {
   Person.find({}).then(persons => {
     response.json(persons)
   })
-});
+})
 
-app.get("/api/persons/:id", (request, response) => {
+app.get('/api/persons/:id', (request, response) => {
   Person.findById(request.params.id).then(person =>
     response.json(person)
   )
-});
+})
 
-app.delete("/api/persons/:id", (request, response, next) => {
+app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndDelete(request.params.id)
     .then((result) => {
       response.status(204).end()
-    }).catch(error => next(error));
-});
+    }).catch(error => next(error))
+})
 
-app.post("/api/persons", (request, response, next) => {
-  const body = request.body;
+app.post('/api/persons', (request, response, next) => {
+  const body = request.body
   if (body.name === undefined || body.number === undefined) {
-    response.status(500).json({ error: "Incomplete parameters" });
+    response.status(500).json({ error: 'Incomplete parameters' })
   }
 
   Person.findOne({ 'name': body.name })
@@ -92,24 +92,11 @@ app.post("/api/persons", (request, response, next) => {
         response.json(savedPerson)
       }).catch((error) => next(error))
 
-      morgan.token("dev", function (req, res) {
-        return req.headers["content-type"];
-      });
+      morgan.token('dev', function (req, res) {
+        return req.headers['content-type']
+      })
     }).catch(error => next(error))
-
-  // const person = new Person({
-  //   name: body.name,
-  //   number: body.number
-  // });
-
-  // person.save().then(savedPerson => {
-  //   response.json(savedPerson)
-  // })
-
-  // morgan.token("dev", function (req, res) {
-  //   return req.headers["content-type"];
-  // });
-});
+})
 
 app.put('/api/persons/:id', (request, response, next) => {
   const body = request.body
@@ -131,30 +118,30 @@ app.put('/api/persons/:id', (request, response, next) => {
     }).catch(error => next(error))
 })
 
-app.get("/info", (request, response) => {
+app.get('/info', (request, response) => {
   Person.find({}).then(persons => {
     let info =
-      "<div>Phonebook has info for " +
+      '<div>Phonebook has info for ' +
       persons.length +
-      " people<br/>" +
+      ' people<br/>' +
       new Date().toLocaleString() +
-      "</div>";
-    response.send(info);
-  });
-});
+      '</div>'
+    response.send(info)
+  })
+})
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT);
-console.log(`Server running on port ${PORT}`);
+const PORT = process.env.PORT || 3001
+app.listen(PORT)
+console.log(`Server running on port ${PORT}`)
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "Unknown endpoint" });
+  response.status(404).send({ error: 'Unknown endpoint' })
 }
 
 app.use(unknownEndpoint)
 
 const errorHandler = (error, request, response, next) => {
-  console.error(error.message);
+  console.error(error.message)
 
   if (error.name === 'CastError') return response.status(400).send({ error: 'malformatted id' })
   if (error.name === 'ValidationError') return response.status(400).json({ error: error.message })
@@ -162,5 +149,5 @@ const errorHandler = (error, request, response, next) => {
 
   next(error)
 }
-// este debe ser el último middleware cargado, ¡también todas las rutas deben ser registrada antes que esto!
+
 app.use(errorHandler)

@@ -12,17 +12,17 @@ app.use(express.static('dist'))
 let notes = [
   {
     id: 1,
-    content: "HTML is easy",
+    content: 'HTML is easy',
     important: true
   },
   {
     id: 2,
-    content: "Browser can execute only JavaScript",
+    content: 'Browser can execute only JavaScript',
     important: false
   },
   {
     id: 3,
-    content: "GET and POST are the most important methods of HTTP protocol",
+    content: 'GET and POST are the most important methods of HTTP protocol',
     important: true
   }
 ]
@@ -72,7 +72,7 @@ app.post('/api/notes', (request, response, next) => {
   note.save().then(savedNote => {
     response.json(savedNote)
   })
-    .catch(error => next(error));
+    .catch(error => next(error))
 })
 
 app.put('/api/notes/:id', (request, response, next) => {

@@ -32,11 +32,6 @@ beforeEach(async () => {
 })
 
 test.only('notes are returned as json', async () => {
-  /* await api
-    .get('/api/notes')
-    .expect(200)
-    .expect('Content-Type', /application\/json/) // Usa regex para identificar que contenga dicho contenido
-    */
   // Get notes from API
   const response = await api.get('/api/notes')
   // Get all notes

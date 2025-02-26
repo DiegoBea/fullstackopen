@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js",
-    "dev": "nodemon index.js",
-    "lint": "eslint ."
+    "start": "cross-env NODE_ENV=production node index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
+    "lint": "eslint .",
+    "test": "cross-env NODE_ENV=test node --test"
   },
   "author": "",
   "license": "ISC",
@@ -19,8 +19,10 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin-js": "^3.1.0",
+    "cross-env": "^7.0.3",
     "eslint": "^9.20.1",
     "globals": "^15.14.0",
-    "nodemon": "^3.1.0"
+    "nodemon": "^3.1.0",
+    "supertest": "^7.0.0"
   }
 }

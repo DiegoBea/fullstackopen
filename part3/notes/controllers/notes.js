@@ -9,19 +9,14 @@ notesRouter.get('/', async (request, response) => {
 })
 
 notesRouter.get('/:id', async (request, response, next) => {
-  try {
-    // Find note using ID in URL
-    const note = await Note.findById(request.params.id)
-    // If there is a note, return it, if not, return 404 error code
-    if (note) {
-      response.json(note)
-    } else {
-      response.status(404).end()
-    }
-  } catch (error) {
-    next(error)
+  // Find note using ID in URL
+  const note = await Note.findById(request.params.id)
+  // If there is a note, return it, if not, return 404 error code
+  if (note) {
+    response.json(note)
+  } else {
+    response.status(404).end()
   }
-
 })
 
 notesRouter.post('/', async (request, response, next) => {
@@ -32,28 +27,17 @@ notesRouter.post('/', async (request, response, next) => {
     content: body.content,
     important: body.important || false,
   })
-
-  try {
-    // Save note
-    const savedNote = await note.save()
-    // Return note saved
-    response.status(201).json(savedNote)
-  } catch (exception) {
-    // Return exception
-    next(exception)
-  }
-
+  // Save note
+  const savedNote = await note.save()
+  // Return note saved
+  response.status(201).json(savedNote)
 })
 
 notesRouter.delete('/:id', async (request, response, next) => {
-  try {
-    // Find note using ID in URL
-    const note = await Note.findById(request.params.id)
-    // Return code 204
-    response.status(204).end()
-  } catch (error) {
-    next(error)
-  }
+  // Find note using ID in URL
+  const note = await Note.findById(request.params.id)
+  // Return code 204
+  response.status(204).end()
 })
 
 notesRouter.put('/:id', (request, response, next) => {

@@ -96,7 +96,40 @@ test('note without content is not added', async () => {
   const notesAtEnd = await helper.notesInDb()
 
   // Check if notes size is the same as initialNotes length
-  assert.strictEqual(notesAtEnd.body.length, helper.initialNotes.length)
+  assert.strictEqual(notesAtEnd.length, helper.initialNotes.length)
+})
+
+test('a specific note can be viewed', async () => {
+  // Get notes in ddbb
+  const notesAtStart = await helper.notesInDb()
+
+  // Get first note
+  const noteToView = notesAtStart[0]
+
+  // Search note by first note ID
+  const resultNote = await api.get(`/api/notes/${noteToView.id}`)
+    .expect(200)
+    .expect('Content-type', /application\/json/)
+
+  // Check if first note is equals to searched by ID
+  assert.deepStrictEqual(resultNote.body, noteToView)
+})
+
+test('a note can be deleted', async () => {
+  // Get all notes in DB
+  const notesAtStart = await helper.notesInDb()
+  // Get first note
+  const firstNote = notesAtStart[0]
+  // Delete note
+  await api.delete(`/api/notes/${firstNote.id}`).expect(204)
+  // Get all notes after delete the note
+  const notesAtEnd = await helper.notesInDb()
+  // Get contents of all notes
+  const contents = notesAtEnd.map(element => element.content)
+  // Check if contents NOT contains first note content
+  assert(!contents.includes(firstNote.content))
+  // Check if length has one less
+  assert.strictEqual(notesAtEnd.length, notesAtStart.length - 1)
 })
 
 // Cerrar la conexión al finaliar las pruebas

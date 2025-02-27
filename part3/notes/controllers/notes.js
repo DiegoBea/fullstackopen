@@ -35,7 +35,7 @@ notesRouter.post('/', async (request, response, next) => {
 
 notesRouter.delete('/:id', async (request, response, next) => {
   // Find note using ID in URL
-  const note = await Note.findById(request.params.id)
+  const note = await Note.findByIdAndDelete(request.params.id)
   // Return code 204
   response.status(204).end()
 })

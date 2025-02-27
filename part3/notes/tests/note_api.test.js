@@ -22,14 +22,33 @@ const initialNotes = [
 beforeEach(async () => {
   // Delete all notes
   await Note.deleteMany({})
-  // Create new note using first element in initialNotes
-  let noteObject = new Note(helper.initialNotes[0])
-  // Save new note
-  await noteObject.save()
-  // Create new note using second element in initialNotes
-  noteObject = new Note(helper.initialNotes[1])
-  // Save second note
-  await noteObject.save()
+
+  // Set Note objects using initial notes
+  const notes = helper.initialNotes.map(note => new Note(note))
+
+  // Generate a promises arrays to execute
+  const promisesArray = notes.map(note => note.save())
+
+  // Wait to execute all promises
+  await Promise.all(promisesArray)
+
+  // NOTE: Alternative
+  /*
+  await Note.deleteMany({})
+
+  for (let note of helper.initialNotes) {
+    let noteObject = new Note(note)
+    await noteObject.save()
+  }
+   */
+
+  // NOTE: This options will be executed after tests because forEach generate his own async operation that 'beforeEach' will not wait for it
+  /*helper.initialNotes.forEach(async (note) => {
+    // Create new note
+    let noteObject = new Note(note)
+    // Save new note
+    await noteObject.save()
+  })*/
 })
 
 test.only('notes are returned as json', async () => {
@@ -126,6 +145,7 @@ test('a note can be deleted', async () => {
   const notesAtEnd = await helper.notesInDb()
   // Get contents of all notes
   const contents = notesAtEnd.map(element => element.content)
+
   // Check if contents NOT contains first note content
   assert(!contents.includes(firstNote.content))
   // Check if length has one less

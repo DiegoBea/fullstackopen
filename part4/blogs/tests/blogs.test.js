@@ -131,6 +131,34 @@ test('Blog without title or url fails when saving', async () => {
   assert.strictEqual(blogsAtEnd.length, blogHelper.initialBlogs.length)
 })
 
+test('A blog can be delete', async () => {
+  // Get first blog
+  const blog = blogHelper.initialBlogs[0];
+  // Delete blog
+  await api.delete(`/api/blogs/${blog._id}`).expect(204)
+  // Get final blogs
+  const blogsAtEnd = await blogHelper.blogsInDb()
+
+  // Compare lengths
+  assert.strictEqual(blogHelper.initialBlogs.length - 1, blogsAtEnd.length)
+})
+
+test('A blog can be updated', async () => {
+  // Get first blog
+  const blog = blogHelper.initialBlogs[0]
+  // Get likes of the blog
+  const likes = blog.likes
+
+  // Update blog
+  await api.put(`/api/blogs/${blog._id}`).send({ 'likes': (likes + 1) })
+
+  // Get updated blog
+  const updatedBlog = (await blogHelper.blogsInDb()).find(item => item.id === blog._id)
+
+  // Check if likes are different
+  assert.strictEqual(blog.likes + 1, updatedBlog.likes)
+})
+
 // Cerrar la conexión al finaliar las pruebas
 after(async () => {
   await mongoose.connection.close()

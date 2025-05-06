@@ -1,9 +1,12 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/note')
+const User = require('../models/user')
 
 notesRouter.get('/', async (request, response) => {
-  // Get find all notes
-  let notes = await Note.find({})
+  // Get all notes and user data
+  const notes = await Note.find({})
+  // Get note user data (only username and name)
+    .populate('user', {username: 1, name: 1})
   // Return json with all notes
   response.json(notes)
 })
@@ -22,13 +25,23 @@ notesRouter.get('/:id', async (request, response, next) => {
 notesRouter.post('/', async (request, response, next) => {
   const body = request.body
 
+  // Get note user
+  const user = await User.findById(body.userId)
+
   // Create new note with body values
   const note = new Note({
     content: body.content,
     important: body.important || false,
+    user: user.id
   })
   // Save note
   const savedNote = await note.save()
+
+  // Add note to user
+  user.notes = user.notes.concat(savedNote._id)
+  // Save user
+  await user.save()
+
   // Return note saved
   response.status(201).json(savedNote)
 })

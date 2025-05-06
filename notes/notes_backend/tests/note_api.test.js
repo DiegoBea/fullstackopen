@@ -84,10 +84,14 @@ describe('when there is initially some notes saved', () => {
   describe('addition of a new note', () => {
 
     test('a valid note can be added', async () => {
+      // Get first user
+      const user = (await helper.usersInDb())[0]
+
       // Create new note data
       const newNote = {
         content: 'async/await simplifies making async calls',
         important: true,
+        userId: user.id
       }
 
       // Create new note in MongoDB
@@ -107,9 +111,13 @@ describe('when there is initially some notes saved', () => {
     })
 
     test('note without content is not added', async () => {
+      // Get first user
+      const user = (await helper.usersInDb())[0]
+
       // Create new note data without content
       const newNote = {
-        important: true
+        important: true,
+        userId: user.id
       }
 
       // Try to save note using API

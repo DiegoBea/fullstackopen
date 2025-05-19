@@ -61,7 +61,7 @@ describe('when there is initially some notes saved', () => {
     })
 
     test('fails with statuscode 404 if note does not exist', async () => {
-      // Generate a non existing ID
+      // Generate a non-existing ID
       const validNonexistingId = await helper.nonExistingId()
 
       // Try to get a note with this ID

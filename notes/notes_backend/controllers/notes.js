@@ -1,12 +1,23 @@
 const notesRouter = require('express').Router()
 const Note = require('../models/note')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+
+const getAuthToken = request => {
+  const auth = request.get('authorization')
+
+  if (auth && auth.startsWith('Bearer ')) {
+    return auth.replace('Bearer ', '')
+  }
+
+  return null
+}
 
 notesRouter.get('/', async (request, response) => {
   // Get all notes and user data
   const notes = await Note.find({})
-  // Get note user data (only username and name)
-    .populate('user', {username: 1, name: 1})
+    // Get note user data (only username and name)
+    .populate('user', { username: 1, name: 1 })
   // Return json with all notes
   response.json(notes)
 })
@@ -25,10 +36,14 @@ notesRouter.get('/:id', async (request, response, next) => {
 notesRouter.post('/', async (request, response, next) => {
   const body = request.body
 
-  // Get note user
-  const user = await User.findById(body.userId)
+  // Check token
+  const decodedToken = jwt.verify(getAuthToken(request), process.env.SECRET)
+  if (!decodedToken.id) return response.status(401).json({ error: 'Invalid token' })
 
-  // Create new note with body values
+  // Get note user
+  const user = await User.findById(decodedToken.id)
+
+  // Create a new note with body values
   const note = new Note({
     content: body.content,
     important: body.important || false,

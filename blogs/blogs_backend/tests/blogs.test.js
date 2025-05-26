@@ -1,4 +1,4 @@
-const { test, describe, after, beforeEach } = require('node:test')
+const {test, describe, after, beforeEach} = require('node:test')
 const assert = require('node:assert')
 const listHelper = require('../utils/list_helper')
 const blogHelper = require('./test_helper')
@@ -8,11 +8,14 @@ const supertest = require('supertest')
 const Blog = require('../models/blog')
 
 const app = require('../app')
-const { url } = require('node:inspector')
 const api = supertest(app)
 
 test('API returns blogs', async () => {
+  const token = await blogHelper.validToken()
   await api.get('/api/blogs')
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
     .expect(200)
     .expect('Content-Type', /application\/json/)
 })
@@ -81,8 +84,16 @@ test('Create new blog', async () => {
     url: "https://google.es"
   }
 
+  // Get token
+  const token = await blogHelper.validToken()
+
   // Save blog using API
-  await api.post('/api/blogs').send(newBlogProperties).expect(201)
+  await api.post('/api/blogs')
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
+    .send(newBlogProperties)
+    .expect(201)
   // Get current blogs in ddbb
   const blogsAtEnd = await blogHelper.blogsInDb()
   // Check if length is equal
@@ -102,8 +113,16 @@ test('Set default 0 when no likes', async () => {
     url: "https://google.es"
   }
 
+  // Get valid token
+  const token = await blogHelper.validToken()
+
   // Save blog using API
-  await api.post('/api/blogs').send(newBlogProperties).expect(201)
+  await api.post('/api/blogs')
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
+    .send(newBlogProperties)
+    .expect(201)
 
   // Get blogs in ddbb
   const blogsAtEnd = await blogHelper.blogsInDb()
@@ -121,8 +140,16 @@ test('Blog without title or url fails when saving', async () => {
     author: 'Test author',
   }
 
+  // Get valid token
+  const token = await blogHelper.validToken()
+
   // Try save blog
-  await api.post('/api/blogs').send(newBlogProperties).expect(400)
+  await api.post('/api/blogs')
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
+    .send(newBlogProperties)
+    .expect(400)
 
   // Get blogs in ddbb
   const blogsAtEnd = await blogHelper.blogsInDb()
@@ -134,8 +161,15 @@ test('Blog without title or url fails when saving', async () => {
 test('A blog can be delete', async () => {
   // Get first blog
   const blog = blogHelper.initialBlogs[0];
+  // Get valid token
+  const token = await blogHelper.validToken()
   // Delete blog
-  await api.delete(`/api/blogs/${blog._id}`).expect(204)
+  await api
+    .delete(`/api/blogs/${blog._id}`)
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
+    .expect(204)
   // Get final blogs
   const blogsAtEnd = await blogHelper.blogsInDb()
 
@@ -148,15 +182,31 @@ test('A blog can be updated', async () => {
   const blog = blogHelper.initialBlogs[0]
   // Get likes of the blog
   const likes = blog.likes
-
+  // Get valid token
+  const token = await blogHelper.validToken()
   // Update blog
-  await api.put(`/api/blogs/${blog._id}`).send({ 'likes': (likes + 1) })
+  await api.put(`/api/blogs/${blog._id}`)
+    .set({
+      'Authorization': 'Bearer ' + token
+    })
+    .send({'likes': (likes + 1)})
 
   // Get updated blog
   const updatedBlog = (await blogHelper.blogsInDb()).find(item => item.id === blog._id)
 
   // Check if likes are different
   assert.strictEqual(blog.likes + 1, updatedBlog.likes)
+})
+
+test('Unauthorized without token', async () => {
+  // Get a blog
+  const blog = blogHelper.initialBlogs[0]
+  // Get valid token
+  const token = await blogHelper.validToken()
+  // Update blog
+  await api.put(`/api/blogs/${blog._id}`)
+    .send({'likes': 0})
+    .expect(401)
 })
 
 // Cerrar la conexión al finaliar las pruebas

@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// const baseUrl = '/api/notes'
-const baseUrl = 'http://localhost:3001/api/notes'
+const baseUrl = '/api/notes'
+// const baseUrl = 'http://localhost:3001/api/notes'
 
 /**
  * User token to api request

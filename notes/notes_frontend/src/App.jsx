@@ -21,6 +21,18 @@ const App = () => {
     });
   }, []);
 
+  /**
+   * Check if the user is already logged using localStorage and save his data
+   */
+  useEffect(() => {
+    const loggedUser = window.localStorage.getItem('loggedUser')
+    if (loggedUser) {
+      const user = JSON.parse(loggedUser)
+      setUser(user)
+      noteService.setToken(user.token)
+    }
+  }, []);
+
   const addNote = (event) => {
     event.preventDefault();
     const noteObject = {
@@ -117,6 +129,9 @@ const App = () => {
     try {
       // Try to get user login in
       const user = await loginService.login({username, password});
+
+      // Store user in localStorage
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
 
       // Set user token
       noteService.setToken(user.token)

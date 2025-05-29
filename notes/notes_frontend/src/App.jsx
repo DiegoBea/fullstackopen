@@ -4,7 +4,6 @@ import Notification from "./components/Notification";
 import Footer from "./components/Footer";
 import noteService from "./services/notes";
 import loginService from './services/login.js';
-import login from "./services/login.js";
 
 const App = () => {
   const [notes, setNotes] = useState([]);

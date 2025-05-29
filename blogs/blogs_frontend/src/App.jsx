@@ -11,6 +11,8 @@ const App = () => {
   const [title, setTitle] = useState('')
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
+  const [msg, setMsg] = useState(null)
+  const [color, setColor] = useState(null)
 
   useEffect(() => {
     blogService.getAll().then(blogs =>
@@ -27,6 +29,7 @@ const App = () => {
     }
   }, []);
 
+  /*------ handlers ------*/
   const handleForm = async (event) => {
     event.preventDefault()
 
@@ -37,8 +40,53 @@ const App = () => {
     setTitle('')
     setAuthor('')
     setUrl('')
+    handleNotification({message: 'Blog created succesfully', color: 'green'})
   }
 
+  const handleNotification = ({message, color}) => {
+    setMsg(message)
+    setColor(color)
+
+    setTimeout(() => {
+      setMsg(null)
+      setColor(null)
+    }, 5000)
+  }
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+
+    try {
+      // Try login
+      const user = await loginService.login({username, password})
+
+      // Save data in localStorage
+      window.localStorage.setItem('loggedUser', JSON.stringify(user))
+
+      // Set token
+      blogService.setToken(user.token)
+
+      // Set data
+      setUser(user)
+      setUsername('')
+      setPassword('')
+
+      // Send a message
+      handleNotification({message: 'Login successfully', color: 'green'})
+    } catch (exception) {
+      handleNotification({message: 'Wrong credentials', color: 'red'})
+    }
+  }
+
+  const handleLogout = (event) => {
+    event.preventDefault()
+
+    setUser(null)
+    blogService.setToken(null)
+    window.localStorage.removeItem('loggedUser')
+  }
+
+  /*------ Elements ------*/
   const BlogsList = () => {
     return <>
       {blogs.map(blog =>
@@ -47,6 +95,29 @@ const App = () => {
     </>
   }
 
+  const Notification = ({message, color}) => {
+    if (message === null) return <></>
+
+    if (color === null) {
+      color = 'black'
+    }
+
+    return <>
+      <div style={{backgroundColor: "grey", border: "solid", borderColor: color, padding: "1%", color: color}}>
+        {message}
+      </div>
+    </>
+  }
+
+  const MainView = () => {
+    return <>
+      <h2>Blogs</h2>
+      {BlogForm()}
+      {BlogsList()}
+    </>
+  }
+
+  /*------ Forms ------*/
   const BlogForm = () => {
     return <>
       <h2>Create new</h2>
@@ -84,47 +155,9 @@ const App = () => {
     </>
   }
 
-  const handleLogin = async (event) => {
-    event.preventDefault()
-    console.log('Logging...')
-
-    try {
-      // Try login
-      const user = await loginService.login({username, password})
-
-      // Save data in localStorage
-      window.localStorage.setItem('loggedUser', JSON.stringify(user))
-
-      // Set token
-      blogService.setToken(user.token)
-
-      // Set data
-      setUser(user)
-      setUsername('')
-      setPassword('')
-    } catch (exception) {
-      console.log('Wrong credentials')
-    }
-  }
-
-  const handleLogout = (event) => {
-    event.preventDefault()
-
-    setUser(null)
-    blogService.setToken(null)
-    window.localStorage.removeItem('loggedUser')
-  }
-
-  const MainView = () => {
-    return <>
-      <h2>Blogs</h2>
-      {BlogForm()}
-      {BlogsList()}
-    </>
-  }
-
   return (
     <div>
+      <Notification message={msg} color={color}/>
       {user === null
         ? LoginForm()
         : <div>
